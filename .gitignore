@@ -1,0 +1,2 @@
+# To tell Git to ignore the .env file, so it won't be tracked or pushed.
+.env
