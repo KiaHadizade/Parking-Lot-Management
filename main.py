@@ -1,12 +1,13 @@
 import os
 import csv
+import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
 
 file_path = os.getenv('USER_DATA')
 file_path_vehicle = os.getenv('VEHICLE_PARKING_FEES')
-headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name']
+headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'Entering date']
 print('Welcome to Parking Lot!')
 
 
@@ -61,18 +62,19 @@ def giv_info():
 
 
             while True:
-                # user_id = generate_id() + 1
                 License_plate = input('Enter your License plate number: ')
                 if License_plate.lower() == 'exit':
                     break
                 vehicle = print_vehicle()
                 brand_Name = input('Enter your vehicle model: ')
                 owner = input('Enter your full name: ')
+                date_rn = datetime.datetime.now()
+                date = date_rn.strftime("%Y-%m-%d %H:%M:%S")
 
-                print("Type 'exit' whenever your finished")
-                writer.writerow([License_plate, vehicle, brand_Name, owner])
+                writer.writerow([License_plate, vehicle, brand_Name, owner, date])
 
                 print('data saved successfully')
+                print("Type 'exit' if you done")
 
             runMatch()
     except Exception as err:
