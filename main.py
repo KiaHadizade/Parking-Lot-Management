@@ -6,8 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 file_path = os.getenv('USER_DATA')
+file_path_city = os.getenv('CITIES_LIST')
 file_path_vehicle = os.getenv('VEHICLE_PARKING_FEES')
-headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'Entering date']
+headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Entering date']
 print('Welcome to Parking Lot!')
 
 
@@ -45,7 +46,14 @@ def print_vehicle():
             print('blah')
 
     
+def city_recognition():
+    city_holder = License_plate[-2:]
 
+    with open(file_path_city, mode='r') as file:
+        for line in file:
+                parts = line.strip().split('-')
+                if parts and city_holder in parts[0].split():
+                    return parts[-1]
 
 def giv_info():
     try:
@@ -62,16 +70,19 @@ def giv_info():
 
 
             while True:
-                License_plate = input('Enter your License plate number: ')
-                if License_plate.lower() == 'exit':
+                global License_plate
+
+                owner = input('Enter your full name: ')
+                if owner.lower() == 'exit':
                     break
+                License_plate = input('Enter your License plate number: ')
                 vehicle = print_vehicle()
                 brand_Name = input('Enter your vehicle model: ')
-                owner = input('Enter your full name: ')
+                city = city_recognition()
                 date_rn = datetime.datetime.now()
                 date = date_rn.strftime("%Y-%m-%d %H:%M:%S")
 
-                writer.writerow([License_plate, vehicle, brand_Name, owner, date])
+                writer.writerow([License_plate, vehicle, brand_Name, owner, city, date])
 
                 print('data saved successfully')
                 print("Type 'exit' if you done")
@@ -94,3 +105,4 @@ def runMatch():
 
 runMatch()
 # print_vehicle()
+# city_recognition()

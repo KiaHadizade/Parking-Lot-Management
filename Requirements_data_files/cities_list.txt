@@ -1,16 +1,16 @@
-10,20,30,40-Tehran
-12,32,42-Mashhad
-13,23,43-Isfahan
-14,34,44-Shiraz
-15,25,45-Tabriz
-16,36,46-Karaj
-17,27,47-Ahvaz
-19,39-Qom
-21,41-Kermanshah
-22,52-Rasht
-24,54-Urmia
-26,56-Zahedan
-28,48-Kerman
+10 20 30 40-Tehran
+12 32 42-Mashhad
+13 23 43-Isfahan
+14 34 44-Shiraz
+15 25 45-Tabriz
+16 36 46-Karaj
+17 27 47-Ahvaz
+19 39-Qom
+21 41-Kermanshah
+22 52-Rasht
+24 54-Urmia
+26 56-Zahedan
+28 48-Kerman
 31-Arak
 33-Hamedan
 35-Yazd
