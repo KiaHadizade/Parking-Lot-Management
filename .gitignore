@@ -1,4 +1,5 @@
 # To tell Git to ignore these files, so it won't be tracked or pushed.
 .env
 test.py
-Requirements_data_files/user_data.csv
+Requirements_data_files/user_check_in.csv
+Requirements_data_files/user_check_out.csv

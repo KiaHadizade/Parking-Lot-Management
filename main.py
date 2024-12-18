@@ -5,16 +5,31 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-file_path = os.getenv('USER_DATA')
-file_path_city = os.getenv('CITIES_LIST')
-file_path_vehicle = os.getenv('VEHICLE_PARKING_FEES')
+user_check_in = os.getenv('USER_CHECK_IN')
+user_check_out = os.getenv('USER_CHECK_OUT')
+city_list = os.getenv('CITIES_LIST')
+vehicle_parking_fee = os.getenv('VEHICLE_PARKING_FEES')
 headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Entering date']
 print('Welcome to Parking Lot!')
 
+def file_op(file_path):
+    try:
+        # Check if file exists and has content
+        file_exists = os.path.exists(file_path)
+        is_empty = os.stat(file_path).st_size == 0 if file_exists else True
 
+        with open(file_path, mode='a', newline='') as file:
+            writer = csv.writer(file)
 
-def print_vehicle():
-    with open(file_path_vehicle, mode='r', newline='') as file:
+            # Write headers only if the file is new or empty
+            if is_empty:
+                writer.writerow(headers)
+
+    except Exception as err:
+        print(f'Error: {err}')
+
+def show_vehicle_brand():
+    with open(vehicle_parking_fee, mode='r', newline='') as file:
         reader = csv.reader(file)
 
         for row in reader:
@@ -45,29 +60,21 @@ def print_vehicle():
         case _:
             print('blah')
 
-    
 def city_recognition():
     city_holder = License_plate[-2:]
 
-    with open(file_path_city, mode='r') as file:
+    with open(city_list, mode='r') as file:
         for line in file:
                 parts = line.strip().split('-')
                 if parts and city_holder in parts[0].split():
                     return parts[-1]
 
-def giv_info():
+def check_in():
     try:
-        # Check if file exists and has content
-        file_exists = os.path.exists(file_path)
-        is_empty = os.stat(file_path).st_size == 0 if file_exists else True
-
-        with open(file_path, mode='a', newline='') as file:
+        with open(user_check_in, mode='a', newline='') as file:
             writer = csv.writer(file)
 
-            # Write headers only if the file is new or empty
-            if is_empty:
-                writer.writerow(headers)
-
+            file_op(user_check_in)
 
             while True:
                 global License_plate
@@ -76,7 +83,7 @@ def giv_info():
                 if owner.lower() == 'exit':
                     break
                 License_plate = input('Enter your License plate number: ')
-                vehicle = print_vehicle()
+                vehicle = show_vehicle_brand()
                 brand_Name = input('Enter your vehicle model: ')
                 city = city_recognition()
                 date_rn = datetime.datetime.now()
@@ -91,15 +98,43 @@ def giv_info():
     except Exception as err:
         print(f'Error: {err}')
 
+def check_out():
+    try:
+        license_plate_to_remove = input('Enter the License plate number to check out: ')
+        
+        # Read current file and filter out matching rows
+        with open(user_check_in, 'r', newline='') as inp:
+            rows = list(csv.reader(inp))
+            # for row in rows:
+            #     if row[0] == license_plate_to_remove:
+            #         print('Got one!')
+        
+        with open(user_check_in, 'w', newline='') as out:
+            writer = csv.writer(out)
+            for row in rows:
+                if row[0] != license_plate_to_remove:
+                    writer.writerow(row)
+                else:
+                    print(f'User with License plate {license_plate_to_remove} checked out.')
+                    file_op(user_check_out)
+                    # need to append the records out of loop to prevent any bugs
+                    # to do this, have to save the desired record into new variable
+                    new_row = row
+
+        with open(user_check_out, 'a', newline='') as check_out:
+                    writer = csv.writer(check_out)
+                    writer.writerow(new_row)
+    except Exception as err:
+        print(f'Error: {err}')
 
 def runMatch():
-    num = int(input('1. Parking your car\n2. Taking your car\n'))
+    num = int(input('1. Check in your car\n2. Check out your car\n'))
 
     match num:
         case 1:
-            giv_info()
+            check_in()
         case 2:
-            print('two')
+            check_out()
         case _:
             print('blah')
 
