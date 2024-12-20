@@ -4,15 +4,14 @@ import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
-
 user_check_in = os.getenv('USER_CHECK_IN')
 user_check_out = os.getenv('USER_CHECK_OUT')
 city_list = os.getenv('CITIES_LIST')
 vehicle_parking_fee = os.getenv('VEHICLE_PARKING_FEES')
-headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Entering date']
+
 print('Welcome to Parking Lot!')
 
-def file_op(file_path):
+def file_op(file_path, headers):
     try:
         # Check if file exists and has content
         file_exists = os.path.exists(file_path)
@@ -27,6 +26,9 @@ def file_op(file_path):
 
     except Exception as err:
         print(f'Error: {err}')
+
+def date():
+    return datetime.datetime.now().strftime("%m-%d-%Y %H:%M:%S")
 
 def show_vehicle_brand():
     with open(vehicle_parking_fee, mode='r', newline='') as file:
@@ -73,26 +75,20 @@ def check_in():
     try:
         with open(user_check_in, mode='a', newline='') as file:
             writer = csv.writer(file)
+            headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Entering date']
+            file_op(user_check_in, headers)
 
-            file_op(user_check_in)
+            global License_plate
+            owner = input('Enter your full name: ')
+            License_plate = input('Enter your License plate number: ')
+            vehicle = show_vehicle_brand()
+            brand_Name = input('Enter your vehicle model: ')
+            city = city_recognition()
+            check_in_date = date()
 
-            while True:
-                global License_plate
+            writer.writerow([License_plate, vehicle, brand_Name, owner, city, check_in_date])
 
-                owner = input('Enter your full name: ')
-                if owner.lower() == 'exit':
-                    break
-                License_plate = input('Enter your License plate number: ')
-                vehicle = show_vehicle_brand()
-                brand_Name = input('Enter your vehicle model: ')
-                city = city_recognition()
-                date_rn = datetime.datetime.now()
-                date = date_rn.strftime("%Y-%m-%d %H:%M:%S")
-
-                writer.writerow([License_plate, vehicle, brand_Name, owner, city, date])
-
-                print('data saved successfully')
-                print("Type 'exit' if you done")
+            print('data saved successfully\n')
 
             runMatch()
     except Exception as err:
@@ -102,12 +98,8 @@ def check_out():
     try:
         license_plate_to_remove = input('Enter the License plate number to check out: ')
         
-        # Read current file and filter out matching rows
         with open(user_check_in, 'r', newline='') as inp:
             rows = list(csv.reader(inp))
-            # for row in rows:
-            #     if row[0] == license_plate_to_remove:
-            #         print('Got one!')
         
         with open(user_check_in, 'w', newline='') as out:
             writer = csv.writer(out)
@@ -116,28 +108,34 @@ def check_out():
                     writer.writerow(row)
                 else:
                     print(f'User with License plate {license_plate_to_remove} checked out.')
-                    file_op(user_check_out)
+                    headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Entering date', 'Exiting date']
+                    file_op(user_check_out, headers)
                     # need to append the records out of loop to prevent any bugs
                     # to do this, have to save the desired record into new variable
                     new_row = row
 
         with open(user_check_out, 'a', newline='') as check_out:
                     writer = csv.writer(check_out)
-                    writer.writerow(new_row)
+                    writer.writerow([*new_row, date()])
+        
+        runMatch()
     except Exception as err:
         print(f'Error: {err}')
 
 def runMatch():
-    num = int(input('1. Check in your car\n2. Check out your car\n'))
+    while True:
+        try:
+            num = int(input('1. Check in your car\n2. Check out your car\nPress any number to exit\n'))
+        except ValueError:
+            # print("Please enter a valid integer.")
+            continue
 
-    match num:
-        case 1:
-            check_in()
-        case 2:
-            check_out()
-        case _:
-            print('blah')
+        match num:
+            case 1:
+                check_in()
+            case 2:
+                check_out()
+            case _:
+                return
 
 runMatch()
-# print_vehicle()
-# city_recognition()
