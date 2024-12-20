@@ -42,7 +42,7 @@ def show_vehicle_brand():
 
     match num:
         case 1:
-            return 'car'
+            return 'Car'
         case 2:
             return 'Motorcycle'
         case 3:
@@ -75,7 +75,7 @@ def check_in():
     try:
         with open(user_check_in, mode='a', newline='') as file:
             writer = csv.writer(file)
-            headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Entering date']
+            headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time']
             file_op(user_check_in, headers)
 
             global License_plate
@@ -84,9 +84,9 @@ def check_in():
             vehicle = show_vehicle_brand()
             brand_Name = input('Enter your vehicle model: ')
             city = city_recognition()
-            check_in_date = date()
+            check_in_time = date()
 
-            writer.writerow([License_plate, vehicle, brand_Name, owner, city, check_in_date])
+            writer.writerow([License_plate, vehicle, brand_Name, owner, city, check_in_time])
 
             print('data saved successfully\n')
 
@@ -96,7 +96,7 @@ def check_in():
 
 def check_out():
     try:
-        license_plate_to_remove = input('Enter the License plate number to check out: ')
+        license_plate_to_remove = input('Enter the License Plate Number to check out: ')
         
         with open(user_check_in, 'r', newline='') as inp:
             rows = list(csv.reader(inp))
@@ -107,8 +107,8 @@ def check_out():
                 if row[0] != license_plate_to_remove:
                     writer.writerow(row)
                 else:
-                    print(f'User with License plate {license_plate_to_remove} checked out.')
-                    headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Entering date', 'Exiting date']
+                    print(f'User with License Plate {license_plate_to_remove} checked out.')
+                    headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time', 'Check out Time']
                     file_op(user_check_out, headers)
                     # need to append the records out of loop to prevent any bugs
                     # to do this, have to save the desired record into new variable
