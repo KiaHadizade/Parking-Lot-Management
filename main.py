@@ -1,6 +1,7 @@
 import os
 import csv
-import datetime
+# import datetime
+from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,7 +29,7 @@ def file_op(file_path, headers):
         print(f'Error: {err}')
 
 def date():
-    return datetime.datetime.now().strftime("%m-%d-%Y %H:%M:%S")
+    return datetime.now().strftime("%m-%d-%Y %H:%M:%S")
 
 def show_vehicle_brand():
     with open(vehicle_parking_fee, mode='r', newline='') as file:
@@ -38,9 +39,9 @@ def show_vehicle_brand():
             print(row[0], end=' ')
             print(row[1])
 
-    num = int(input('Choose your best vehicle: '))
+    case = int(input('Choose your best vehicle: '))
 
-    match num:
+    match case:
         case 1:
             return 'Car'
         case 2:
@@ -70,6 +71,29 @@ def city_recognition():
                 parts = line.strip().split('-')
                 if parts and city_holder in parts[0].split():
                     return parts[-1]
+                else:
+                    return 'Iran'
+
+def fee(vehicle_name, start, end):
+    
+    start_date = datetime.strptime(start, "%m-%d-%Y %H:%M:%S")
+    end_date = datetime.strptime(end, "%m-%d-%Y %H:%M:%S")
+    hours = (end_date - start_date).total_seconds() / 3600  # Calculate the difference in hours
+    # print(f'Difference is {hours:.2f} hours')
+
+    with open(vehicle_parking_fee, 'r', newline='') as f:
+        dict_reader = csv.DictReader(f)
+        # hourly_fee = None
+        for value in dict_reader:
+            if value['Vehicle'] == vehicle_name:
+                hourly_fee = value['Hourly Fee'] # The value would be string
+                break
+
+    # if hourly_fee is None:
+    #     raise ValueError(f"Hourly fee not found for vehicle: {vehicle_name}")
+    
+    total_fee = round(hours * float(hourly_fee), 2)
+    return total_fee
 
 def check_in():
     try:
@@ -97,10 +121,19 @@ def check_in():
 def check_out():
     try:
         license_plate_to_remove = input('Enter the License Plate Number to check out: ')
+
+        end_date = date()
         
+        with open(user_check_in, 'r', newline='') as f:
+            check_in_records = csv.DictReader(f)
+            for record in check_in_records:
+                if record['License plate number'] == license_plate_to_remove:
+                    vehicle_name = record['vehicle']
+                    Check_in_time = record['Check in Time']
+
         with open(user_check_in, 'r', newline='') as inp:
             rows = list(csv.reader(inp))
-        
+
         with open(user_check_in, 'w', newline='') as out:
             writer = csv.writer(out)
             for row in rows:
@@ -108,17 +141,15 @@ def check_out():
                     writer.writerow(row)
                 else:
                     print(f'User with License Plate {license_plate_to_remove} checked out.')
-                    headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time', 'Check out Time']
+                    headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time', 'Check out Time', 'Fee']
                     file_op(user_check_out, headers)
                     # need to append the records out of loop to prevent any bugs
                     # to do this, have to save the desired record into new variable
                     new_row = row
 
-        with open(user_check_out, 'a', newline='') as check_out:
-                    writer = csv.writer(check_out)
-                    writer.writerow([*new_row, date()])
-        
-        runMatch()
+        with open(user_check_out, 'a', newline='') as file_check_out:
+            writer = csv.writer(file_check_out)
+            writer.writerow([*new_row, end_date, fee(vehicle_name, Check_in_time, end_date)])
     except Exception as err:
         print(f'Error: {err}')
 

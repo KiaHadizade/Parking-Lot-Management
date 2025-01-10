@@ -5,19 +5,19 @@
 15 25 45-Tabriz
 16 36 46-Karaj
 17 27 47-Ahvaz
-19 39-Qom
+19 39 48-Qom
 21 41-Kermanshah
 22 52-Rasht
 24 54-Urmia
 26 56-Zahedan
-28 48-Kerman
+28 58-Kerman
 31-Arak
 33-Hamedan
 35-Yazd
 38-Qazvin
 51-Khorramabad
 53-Sari
-58-Bojnord
+57-Bojnord
 59-Gorgan
 61-Bandar Abbas
 62-Sanandaj
@@ -25,8 +25,8 @@
 68-Bushehr
 81-Zanjan
 91-Ardabil
-44-Kish
-77-Qeshm
-88-Chabahar
-21-Damavand
-26-Kashan
+49-Kish
+66-Qeshm
+77-Chabahar
+67-Damavand
+72-Kashan
