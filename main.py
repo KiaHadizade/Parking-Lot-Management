@@ -9,6 +9,8 @@ user_check_in = os.getenv('USER_CHECK_IN')
 user_check_out = os.getenv('USER_CHECK_OUT')
 city_list = os.getenv('CITIES_LIST')
 vehicle_parking_fee = os.getenv('VEHICLE_PARKING_FEES')
+bill_file = os.getenv('BILL_FILE')
+MAX_CAP = 20 # Maximum capacity of parking
 
 print('Welcome to Parking Lot!')
 
@@ -24,7 +26,6 @@ def file_op(file_path, headers):
             # Write headers only if the file is new or empty
             if is_empty:
                 writer.writerow(headers)
-
     except Exception as err:
         print(f'Error: {err}')
 
@@ -63,7 +64,7 @@ def show_vehicle_brand():
         case _:
             print('blah')
 
-def city_recognition():
+def city_recognition(License_plate):
     city_holder = License_plate[-2:]
 
     with open(city_list, mode='r') as file:
@@ -71,8 +72,6 @@ def city_recognition():
                 parts = line.strip().split('-')
                 if parts and city_holder in parts[0].split():
                     return parts[-1]
-                else:
-                    return 'Iran'
 
 def fee(vehicle_name, start, end):
     
@@ -102,16 +101,13 @@ def check_in():
             headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time']
             file_op(user_check_in, headers)
 
-            global License_plate
             owner = input('Enter your full name: ')
             License_plate = input('Enter your License plate number: ')
             vehicle = show_vehicle_brand()
             brand_Name = input('Enter your vehicle model: ')
-            city = city_recognition()
+            city = city_recognition(License_plate)
             check_in_time = date()
-
             writer.writerow([License_plate, vehicle, brand_Name, owner, city, check_in_time])
-
             print('data saved successfully\n')
 
             runMatch()
@@ -121,37 +117,69 @@ def check_in():
 def check_out():
     try:
         license_plate_to_remove = input('Enter the License Plate Number to check out: ')
-
         end_date = date()
-        
-        with open(user_check_in, 'r', newline='') as f:
-            check_in_records = csv.DictReader(f)
+        found_plate = False
+        updated_rows = []
+
+        with open(user_check_in, 'r', newline='') as read_file:
+            check_in_records = csv.DictReader(read_file)
             for record in check_in_records:
                 if record['License plate number'] == license_plate_to_remove:
                     vehicle_name = record['vehicle']
+                    brand_name = record['Brand Name']
+                    owner_name = record['Owner Name']
+                    city = record['City']
                     Check_in_time = record['Check in Time']
-
-        with open(user_check_in, 'r', newline='') as inp:
-            rows = list(csv.reader(inp))
-
-        with open(user_check_in, 'w', newline='') as out:
-            writer = csv.writer(out)
-            for row in rows:
-                if row[0] != license_plate_to_remove:
-                    writer.writerow(row)
+                    found_plate = True
                 else:
-                    print(f'User with License Plate {license_plate_to_remove} checked out.')
-                    headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time', 'Check out Time', 'Fee']
-                    file_op(user_check_out, headers)
-                    # need to append the records out of loop to prevent any bugs
-                    # to do this, have to save the desired record into new variable
-                    new_row = row
+                    updated_rows.append(record)
 
-        with open(user_check_out, 'a', newline='') as file_check_out:
-            writer = csv.writer(file_check_out)
-            writer.writerow([*new_row, end_date, fee(vehicle_name, Check_in_time, end_date)])
+        if not found_plate:
+            raise ValueError(f"License plate {license_plate_to_remove} not found in check-in records!")
+        # -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        with open(user_check_in, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=check_in_records.fieldnames)
+            writer.writeheader()
+            writer.writerows(updated_rows)
+        
+        print(f'User with License Plate {license_plate_to_remove} checked out.')
+        headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time', 'Check out Time', 'Fee']
+        file_op(user_check_out, headers)
+
+        with open(user_check_out, 'a', newline='') as check_out_file:
+            writer = csv.writer(check_out_file)
+            tot_fee = fee(vehicle_name, Check_in_time, end_date)
+            writer.writerow([
+                license_plate_to_remove, vehicle_name, record.get('Brand Name'), record.get('Owner Name'),
+                record.get('City'), Check_in_time, end_date, tot_fee
+            ])
+
+        generate_bill(license_plate_to_remove, vehicle_name, brand_name, owner_name, city, Check_in_time, end_date, tot_fee)
+        # -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     except Exception as err:
         print(f'Error: {err}')
+
+def generate_bill(license_plate, vehicle_name, brand_name, owner_name, city, check_in_time, check_out_time, fee):
+    bill_content = f'''
+    ================================
+                Parking Bill
+    ================================
+    License Plate: {license_plate}
+    Vehicle Name: {vehicle_name}
+    Brand Name: {brand_name}
+    Owner Name: {owner_name}
+    City: {city}
+    Check-In Time: {check_in_time}
+    Check-Out Time: {check_out_time}
+    Total Fee: ${fee}
+    ================================
+    '''
+    
+    with open(bill_file, 'w') as f:
+        f.write(bill_content)
+    
+    # print(bill_content)
+    os.system(f"notepad {bill_file}")  # To open the bill in Notepad
 
 def runMatch():
     while True:
