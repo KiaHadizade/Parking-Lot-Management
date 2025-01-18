@@ -96,21 +96,28 @@ def fee(vehicle_name, start, end):
 
 def check_in():
     try:
-        with open(user_check_in, mode='a', newline='') as file:
-            writer = csv.writer(file)
-            headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time']
-            file_op(user_check_in, headers)
+        with open(user_check_in, mode='r', newline='') as file:
+            read = csv.DictReader(file)
+            capacity = 0
+            for _ in read:
+                capacity += 1
+        if capacity < MAX_CAP:
+            with open(user_check_in, mode='a', newline='') as file:
+                writer = csv.writer(file)
+                headers = ['License plate number', 'vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time']
+                file_op(user_check_in, headers)
 
-            owner = input('Enter your full name: ')
-            License_plate = input('Enter your License plate number: ')
-            vehicle = show_vehicle_brand()
-            brand_Name = input('Enter your vehicle model: ')
-            city = city_recognition(License_plate)
-            check_in_time = date()
-            writer.writerow([License_plate, vehicle, brand_Name, owner, city, check_in_time])
-            print('data saved successfully\n')
-
-            runMatch()
+                owner = input('Enter your full name: ')
+                License_plate = input('Enter your License plate number: ')
+                vehicle = show_vehicle_brand()
+                brand_Name = input('Enter your vehicle model: ')
+                city = city_recognition(License_plate)
+                check_in_time = date()
+                writer.writerow([License_plate, vehicle, brand_Name, owner, city, check_in_time])
+                print('data saved successfully\n')
+        else:
+            print('Parking lot has reached the maximum capacity!\n')
+        runMatch()
     except Exception as err:
         print(f'Error: {err}')
 
