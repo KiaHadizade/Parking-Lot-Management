@@ -1,6 +1,7 @@
 import os
 import csv
 # import datetime
+import pandas as pd
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -11,8 +12,8 @@ city_list = os.getenv('CITIES_LIST')
 vehicle_parking_fee = os.getenv('VEHICLE_PARKING_FEES')
 bill_file = os.getenv('BILL_FILE')
 MAX_CAP = 20 # Maximum capacity of parking
+ADMIN_PSW = 'adminadmin' # Password for Admin
 
-print('Welcome to Parking Lot!')
 
 def file_op(file_path, headers):
     try:
@@ -117,7 +118,6 @@ def check_in():
                 print('data saved successfully\n')
         else:
             print('Parking lot has reached the maximum capacity!\n')
-        runMatch()
     except Exception as err:
         print(f'Error: {err}')
 
@@ -191,17 +191,43 @@ def generate_bill(license_plate, vehicle_name, brand_name, owner_name, city, che
 def runMatch():
     while True:
         try:
-            num = int(input('1. Check in your car\n2. Check out your car\nPress any number to exit\n'))
+            num = int(input('0. To exit\n1. Enter as Admin\n2. Enter as user\n'))
+            
+            match num:
+                case 0:
+                    break
+                case 1:
+                    # Admin section
+                    adm_pws = input("Enter Admin password: ")
+                    if adm_pws == ADMIN_PSW:
+                        # reporting()
+                        print("Admin Section")
+                    else:
+                        print("Incorrect password!")
+                case 2:
+                    # User section
+                    print('Welcome to Parking Lot!\n')
+                    while True:
+                        try:
+                            user_num = int(input('1. Check in your car\n2. Check out your car\nPress 0 to exit\n'))
+                            
+                            match user_num:
+                                case 0:
+                                    print("Exiting user section.")
+                                    break
+                                case 1:
+                                    check_in()
+                                case 2:
+                                    check_out()
+                                case _:
+                                    print("Invalid input. Please enter 1, 2, or 0.")
+                        except ValueError:
+                            print("Invalid input. Please enter a valid number.")
+                case _:
+                    print("Invalid input. Please enter 0 for Admin or 1 for User.\n")
         except ValueError:
-            # print("Please enter a valid integer.")
-            continue
+            print("Invalid input. Please enter a valid number.")
 
-        match num:
-            case 1:
-                check_in()
-            case 2:
-                check_out()
-            case _:
-                return
-
-runMatch()
+# runMatch()
+if __name__ == "__main__":
+    runMatch()
