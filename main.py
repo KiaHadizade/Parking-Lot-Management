@@ -188,6 +188,32 @@ def generate_bill(license_plate, vehicle_name, brand_name, owner_name, city, che
     # print(bill_content)
     os.system(f"notepad {bill_file}")  # To open the bill in Notepad
 
+# -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+def reporting():
+    df = pd.read_csv(user_check_in)
+    print(f'{df}\n')
+    car = motorcycle = bicycle = truck = bus = van = luxury_vehicle = electric_car = scooter = 0
+    for x in df.index:
+        if df.loc[x, 'vehicle'] == 'Car': car += 1
+        elif df.loc[x, 'vehicle'] == 'Motorcycle': motorcycle += 1
+        elif df.loc[x, 'vehicle'] == 'Bicycle': bicycle += 1
+        elif df.loc[x, 'vehicle'] == 'Truck': truck += 1
+        elif df.loc[x, 'vehicle'] == 'Bus': bus += 1
+        elif df.loc[x, 'vehicle'] == 'Van': van += 1
+        elif df.loc[x, 'vehicle'] == 'Luxury Vehicle': luxury_vehicle += 1
+        elif df.loc[x, 'vehicle'] == 'Electric Car': electric_car += 1
+        else: scooter += 1
+    print(f'Car: {car}', end='')
+    print(f', Motorcycle: {motorcycle}', end='')
+    print(f', Bicycle: {bicycle}', end='')
+    print(f', Truck: {truck}', end='')
+    print(f', Bus: {bus}', end='')
+    print(f', Van: {van}', end='')
+    print(f', Luxury Vehicle: {luxury_vehicle}', end='')
+    print(f', Electric Car: {electric_car}')
+    print('')
+
 def runMatch():
     while True:
         try:
@@ -200,8 +226,7 @@ def runMatch():
                     # Admin section
                     adm_pws = input("Enter Admin password: ")
                     if adm_pws == ADMIN_PSW:
-                        # reporting()
-                        print("Admin Section")
+                        reporting()
                     else:
                         print("Incorrect password!")
                 case 2:
