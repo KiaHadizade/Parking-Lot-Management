@@ -13,6 +13,7 @@ bill_file = os.getenv('BILL_FILE')
 MAX_CAP = 20 # Maximum capacity of parking
 ADMIN_PSW = 'adminadmin' # Password for Admin
 
+# User section functions
 
 def file_op(file_path, headers):
     try:
@@ -40,7 +41,7 @@ def show_vehicle_brand():
             print(row[0], end=' ')
             print(row[1])
 
-    case = int(input('Choose your best vehicle: '))
+    case = int(input('Choose your vehicle type: '))
 
     match case:
         case 1:
@@ -74,7 +75,6 @@ def city_recognition(License_plate):
                     return parts[-1]
 
 def fee(vehicle_name, start, end):
-    
     start_date = datetime.strptime(start, "%m-%d-%Y %H:%M:%S")
     end_date = datetime.strptime(end, "%m-%d-%Y %H:%M:%S")
     hours = (end_date - start_date).total_seconds() / 3600  # Calculate the difference in hours
@@ -108,17 +108,15 @@ def check_in():
                     capacity += 1
             if capacity < MAX_CAP:
                 owner = input('Enter your full name: ')
-                License_plate = input('Enter your License Plate: ')
+                License_plate = input('Enter the License Plate: ')
                 vehicle = show_vehicle_brand()
-                brand_Name = input('Enter your vehicle model: ')
+                brand_Name = input('Enter the vehicle brand: ')
                 city = city_recognition(License_plate)
                 check_in_time = date()
                 writer.writerow([License_plate, vehicle, brand_Name, owner, city, check_in_time])
-                print('data saved successfully\n')
+                print(f'Vehicle with {License_plate} license plate checked in successfully\n')
             else:
-                print('Parking lot has reached the maximum capacity!\n')
-            
-        
+                print('Parking lot has reached the maximum capacity!\n Wait for someone to check out, then try again.\n')
     except Exception as err:
         print(f'Error: {err}')
 
@@ -189,7 +187,7 @@ def generate_bill(license_plate, vehicle_name, brand_name, owner_name, city, che
     # print(bill_content)
     os.system(f"notepad {bill_file}")  # To open the bill in Notepad
 
-# -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# Admin section functions
 
 def view_info():
     df = pd.read_csv(user_check_in)
@@ -250,7 +248,10 @@ def reporting():
     
     reports = {period: df.loc[filter] for period, filter in filters.items()}
     for period, report in reports.items():
-        print(f'\n{period}:\n', report)
+        if report.empty:
+            print(f'\n{period}: No check-in for today!')
+        else:
+            print(f'\n{period}:\n', report)
 
     # Providing vehicle statistics based on the city of license plate registration (how many vehicles are from each city)
     city_count = df.groupby('City').size().reset_index(name='Number of Vehicles')
