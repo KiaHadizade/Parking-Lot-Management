@@ -4,7 +4,10 @@ import pandas as pd
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
+
+# Configuration from .env file
 user_check_in = os.getenv('USER_CHECK_IN')
 user_check_out = os.getenv('USER_CHECK_OUT')
 city_list = os.getenv('CITIES_LIST')
@@ -14,9 +17,9 @@ MAX_CAP = 20 # Maximum capacity of parking
 ADMIN_PSW = 'adminadmin' # Password for Admin
 
 # User section functions
-def file_op(file_path, headers):
+def setup_file(file_path, headers):
     try:
-        # Check and initialize a CSV file with the given headers
+        # Ensure the CSV file exists and has the required headers
         if not os.path.exists(file_path) or os.stat(file_path).st_size == 0:
             with open(file_path, mode='w', newline='') as file:
                 writer = csv.writer(file)
@@ -75,7 +78,7 @@ def fee(vehicle_name, start, end):
 def check_in():
     # Check in a vehicle and record its details
     try:
-        file_op(user_check_in, ['License Plate', 'Vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time'])
+        setup_file(user_check_in, ['License Plate', 'Vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time'])
         df = pd.read_csv(user_check_in)
 
         with open(user_check_in, mode='a', newline='') as file:
@@ -124,7 +127,7 @@ def check_out():
         end_date = get_date()
         tot_fee = fee(vehicle, Check_in_time, end_date)
 
-        file_op(user_check_out, ['License Plate', 'Vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time', 'Check out Time', 'Fee'])
+        setup_file(user_check_out, ['License Plate', 'Vehicle', 'Brand Name', 'Owner Name', 'City', 'Check in Time', 'Check out Time', 'Fee'])
 
         with open(user_check_out, 'a', newline='') as file:
             writer = csv.writer(file)
